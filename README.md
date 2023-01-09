@@ -17,3 +17,8 @@ generasi, pengujian jumlah populasi dan pengujian kombinasi rasio mutasi dan cro
 generasi sebanyak 200, jumlah populasi sebanyak 25 individu, rasio mutasi sebesar 0,1,
 dan rasio crossover sebesar 0,9. Hasil yang didapatkan adalah solusi optimal dengan
 nilai total jarak terendah sebesar 8,757 Km.
+# Tools
+- HTML
+- CSS
+- Javascript
+- Google Maps API
