@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>New Project Skripsi TSP - Algoritma Genetika</title>
+    <title>Tugas Akhir - Optimasi Travelling Salesman Problem Menggunakan Algoritma Genetika</title>
 
     <!-- Import Google Fonts Poppins -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -23,12 +23,9 @@
     <div class="flex-container">
       <!-- Konten Untuk Informasi Aplikasi Serta Konfigurasi Algoritma Genetika -->
       <div class="item-1">
-        <h1>Implementasi Algoritma Genetika Untuk Permasalahan TSP</h1>
+        <h1>Tugas Akhir - Optimasi Travelling Salesman Problem Menggunakan Algoritma Genetika</h1>
         <p>
-          Aplikasi ini dibuat untuk memenuhi tugas akhir dengan topik
-          implementasi algoritma genetika untuk menyelesaikan permasalahan
-          travelling salesman problem pada perjalan wisata dengan bantuan google
-          maps api.
+          Sistem ini dibuat untuk memenuhi Tugas Akhir dengan topik Optimasi Permasalahan Travelling Salesman Problem Menggunakan Algoritma Genetika (Studi Kasus: Rute Perjalanan Wisata)
         </p>
 
         <!-- Pembungkus Konten Btn Tambah Lokasi, Default Lokasi Serta Input Box Alamat -->
@@ -36,7 +33,7 @@
           <h2>Lokasi Destinasi</h2>
           <button type="button" id="tambah_lokasi_tujuan">Tambah Lokasi</button>
           <button type="button" id="default_lokasi_tujuan">
-            Default Lokasi
+            Lokasi Default
           </button>
 
           <input
@@ -77,7 +74,7 @@
             <option value="125">125</option>
             <option value="150">150</option>
             <option value="175">175</option>
-            <option value="175">200</option>
+            <option value="200">200</option>
           </select>
 
           <label for="rasio-mutasi">Rasio Mutasi</label>
@@ -116,7 +113,7 @@
             <option value="0">Disabled</option>
           </select>
 
-          <label for="generations">Generations</label>
+          <label for="generations">Generasi</label>
           <select id="generations" class="m-wrap">
             <option value="50" selected>50</option>
             <option value="100">100</option>
@@ -136,14 +133,14 @@
         <div class="pembatas"></div>
 
         <div class="info-hasil">
-          <h2>Debug Info</h2>
+          <h2>Hasil Pengujian</h2>
 
           <h3>Jumlah Lokasi:</h3>
           <p id="jumlah-lokasi">0</p>
           <br />
 
           <div class="info-algoritma" style="display: none">
-            <h3>Generations:</h3>
+            <h3>Generasi:</h3>
             <p id="jumlah-generasi">0</p>
           </div>
           <div class="info-algoritma" style="display: none">
@@ -151,10 +148,10 @@
             <p id="jarak-terbaik">?</p>
           </div>
           <div class="info-algoritma" style="display: none">
-            <h3>Summary Route</h3>
+            <h3>Ringkasan Rute Perjalanan</h3>
             <div id="rangkuman-rute"></div>
             <button type="button" onclick="$('#panel-petunjuk').toggle();">
-              View Detail Route
+              Detail Rute Perjalanan
             </button>
             <div id="panel-petunjuk"></div>
           </div>
@@ -172,6 +169,6 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 
     <!-- <script type="text/javascript" src="./functionGA.js"></script> -->
-    <script type="text/javascript" src="./functionGA.js"></script>
+    <script type="text/javascript" src="./fungsiPerhitungan.js"></script>
   </body>
 </html>
