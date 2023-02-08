@@ -1,18 +1,22 @@
-// DEKLARASI VARIABEL
+// Menyimpan peta yang ingin ditampilkan
 var map;
+
+// Menyimpan rute antar lokasi dan menyimpan request rute antar lokasi ke google maps api
 var directionsDisplay = null;
 var directionsService;
-var polylinePath;
 
+// Menyimpan garis rute yang akan ditampilkan
+// Menyimpan lokasi, lokasi sebelumnya, dan marker pada peta.
+var polylinePath;
 var nodes = [];
 var prevNodes = [];
 var markers = [];
 
-// MEMBUAT HARDCODE LOKASI BERDASARKAN NAMA LOKASI, LATITUDE DAN LONGITUDE
+// Menyimpan lokasi tujuan dan jarak antar lokasi
 var destinations = [];
 var distances = [];
 
-// MEMBUAT HARDCODE DEFAULT LOKASI BERDASARKAN NAMA LOKASI, LATITUDE DAN LONGITUDE
+// Menyimpan lokasi default yang akan ditampilkan pada peta
 var destinationsDefault = [
   ["Istana Anak-Anak Indonesia", -6.302011, 106.900207],
   ["Anjungan Bali", -6.302664, 106.897567],
@@ -22,17 +26,17 @@ var destinationsDefault = [
   ["Museum Indonesia", -6.301047, 106.891444],
   ["Museum Purna Bakti Pertiwi", -6.300346, 106.886441],
 ];
+
 var defaultDest = false;
 
-// MENENTUKAN DESTINASI TUJUAN
+// Mengisi input box dengan lokasi yang sudah ditentukan sebagai default
 var hitung_konten_lokasi = $(".lokasi-tujuan").length - 1;
 function auto_isi() {
   if (!defaultDest) {
-    // SET DESTINATION
     for (var i = 0; i < destinationsDefault.length; i++) {
       if (i > 0) {
         hitung_konten_lokasi++;
-        // MENGISI INPUT BOX DENGAN DEFAULT HARDCODE LOKASI YANG SUDAH DITENTUKAN
+        // Membuat input box baru setiap kali dijalankan dan mengisi nama lokasi pada input box tersebut.
         var konten =
           '<div class="lokasi-tujuan" id="lokasi-tujuan-' +
           hitung_konten_lokasi +
@@ -57,7 +61,7 @@ function auto_isi() {
         $("div.lokasi-tujuan").last().after(konten);
       }
 
-      // MENAMPILKAN NAMA LOKASI PADA INPUT BOX
+      // Memampilkan nama lokasi pada input box
       $("#lokasi_tujuan_" + i).val(destinationsDefault[i][0]);
       $("#lokasi_tujuan_" + i + "_latitude").val(destinationsDefault[i][1]);
       $("#lokasi_tujuan_" + i + "_longitude").val(destinationsDefault[i][2]);
@@ -66,7 +70,7 @@ function auto_isi() {
     var inputs = document.getElementsByClassName("lokasi_tujuan");
     var autocompletes = [];
 
-    // PLACE AUTOCOMPLETE BERDASARKAN NAMA ALAMAT LOKASI
+    // Fungsi ini menggunakan API Place Autocomplete dari Google Maps untuk mengisi input box dengan nama alamat lokasi.
     for (var i = 0; i < inputs.length; i++) {
       var autocomplete = new google.maps.places.Autocomplete(inputs[i], {
         types: ["address"],
@@ -97,6 +101,7 @@ function auto_isi() {
       autocompletes.push(autocomplete);
     }
 
+    // Fungsi ini akan mengambil ID dari elemen input yang memicu event tersebut yaitu place_changed dan memasukkan nilai latitude dan longitude dari lokasi yang dipilih ke dalam input tipe hidden dengan ID sesuai.
     function fillIn() {
       var id = this.inputId;
       var place = this.getPlace();
@@ -107,17 +112,18 @@ function auto_isi() {
       $("#" + id + "_longitude").val(longitude);
     }
 
+    // Fungsi ini akan berjalan jika "defaultDest" bernilai false. Nilai "defaultDest" akan berubah menjadi true setelah fungsi ini dijalankan.
     destinations = destinationsDefault;
     defaultDest = true;
   }
 }
 
-// FUNGSI UNTUK DEFAULT LOKASI TUJUAN
+// Event handler untuk memanggil fungsi auto_isi() agar bisa menampilkan default lokasi tujuan
 $(document).on("click", "#default_lokasi_tujuan", function () {
   auto_isi();
 });
 
-// MEMBUAT FUNGSI UNTUK LOKASI TUJUAN PERTAMA
+// Fungsi autocomplete google maps api untuk lokasi tujuan pertama
 var lokasi_tujuan = new google.maps.places.Autocomplete(
   document.getElementById("lokasi_tujuan_0"),
   {
@@ -133,18 +139,19 @@ lokasi_tujuan.addListener("place_changed", function () {
   $("#lokasi_tujuan_0_longitude").val(longitude);
 });
 
-// FUNGSI UNTUK LOKASI TUJUAN SELANJUTNYA
+// Menyimpan jumlah elemen dengan kelas lokasi-tujuan dan menggunakannya dalam perhitungan selanjutnya
 var hitung_konten_lokasi = $(".lokasi-tujuan").length - 1;
-// FUNGSI UNTUK TOMBOL TAMBAH LOKASI TUJUAN SAAT DI CLICK
+
+// Fungsi untuk penggunaan tombol tambah lokasi sebagai validasi
 $(document).on("click", "#tambah_lokasi_tujuan", function () {
-  // MEMUNCULKAN ALERT DIALOG SAAT INPUT BOX KOSONG DAN TOMBOL TAMBAH LOKASI DI CLICK
+  // Mengecek apakah input box lokasi sudah terisi atau belum. Jika belum, maka akan muncul pesan alert dan event fokus pada input box tersebut.
   if ($("#lokasi_tujuan_" + hitung_konten_lokasi).val() == "") {
     alert("Lokasi Dibutuhkan! Input Box Tidak Boleh Kosong.");
     document.getElementById("lokasi_tujuan_" + hitung_konten_lokasi).focus();
     return false;
   }
 
-  // MEMUNCULKAN ALERT DIALOG SAAT MENGINPUT LOKASI YANG TIDAK VALID DAN TOMBOL TAMBAH LOKASI DI CLICK
+  // Mengecek apakah input lokasi yang dimasukkan adalah lokasi yang valid, jika tidak akan muncul sebuah alert
   if (
     $("#lokasi_tujuan_" + hitung_konten_lokasi + "_latitude").val() == "" &&
     $("#lokasi_tujuan_" + hitung_konten_lokasi).val() != ""
@@ -154,11 +161,13 @@ $(document).on("click", "#tambah_lokasi_tujuan", function () {
     return false;
   }
 
-  // MEMUNCULKAN ALERT DIALOG SAAT JUMLAH LOKASI SUDAH MELEBIHI BATAS MAKSIMAL
+  // Membatasi jumlah lokasi yang bisa ditambahkan, jika sudah mencapai batas maksimal maka akan memunculkan alert
   if ($(".lokasi-tujuan").length == 9) {
     alert("Jumlah Lokasi Sudah Maksimal!");
     return;
   }
+
+  // Untuk menampilkan input box jika tombol tambah lokasi diklik
   hitung_konten_lokasi++;
   var konten =
     '<div class="lokasi-tujuan" id="lokasi-tujuan-' +
@@ -186,6 +195,7 @@ $(document).on("click", "#tambah_lokasi_tujuan", function () {
   var inputs = document.getElementsByClassName("lokasi_tujuan");
   var autocompletes = [];
 
+  // Fungsi ini menggunakan API Place Autocomplete dari Google Maps untuk mengisi input box dengan nama alamat lokasi.
   for (var i = 0; i < inputs.length; i++) {
     var autocomplete = new google.maps.places.Autocomplete(inputs[i], {
       types: ["address"],
@@ -216,6 +226,7 @@ $(document).on("click", "#tambah_lokasi_tujuan", function () {
     autocompletes.push(autocomplete);
   }
 
+  // Fungsi ini akan mengambil ID dari elemen input yang memicu event tersebut yaitu place_changed dan memasukkan nilai latitude dan longitude dari lokasi yang dipilih ke dalam input tipe hidden dengan ID sesuai.
   function fillIn() {
     var id = this.inputId;
     var place = this.getPlace();
@@ -227,13 +238,13 @@ $(document).on("click", "#tambah_lokasi_tujuan", function () {
   }
 });
 
-// FUNGSI UNTUK MENGHAPUS LOKASI TUJUAN
+// Menghapus input box lokasi tujuan
 $(document).on("click", ".hapus_lokasi_tujuan", function () {
   var id = $(this).data("id");
   $("#lokasi-tujuan-" + id).remove();
 });
 
-// FUNGSI UNTUK MENAMPILKAN GOOGLE MAPS
+// Membuat objek peta Google Maps
 function initializeMap() {
   map = new google.maps.Map(document.getElementById("map-canvas"), {
     center: { lat: -6.302478152274517, lng: 106.8951792972926 },
@@ -244,9 +255,9 @@ function initializeMap() {
   });
 }
 
-// FUNGSI UNTUK MENDAPATKAN INFO PERJALANAN (TOTAL DURASI PERJALAN DAN WAKTU)
+// Fungsi untuk mendapatkan info perjalanan yaitu jarak perjalanan
 function getDistance(callback) {
-  // MENDAPATKAN NILAI TOTAL PERJALANAN SAAT TOMBOL SEARCH RUTE DIJALANKAN
+  // Mengumpulkan informasi tentang lokasi tujuan dari elemen HTML yang memiliki class "lokasi_tujuan".
   var service = new google.maps.DistanceMatrixService();
   var nodes = [];
   $(".lokasi_tujuan").each(function (i, obj) {
@@ -258,6 +269,7 @@ function getDistance(callback) {
       $("#lokasi_tujuan_" + id + "_longitude").val()
     );
 
+    // Informasi tersebut dikumpulkan dalam bentuk latitude dan longitude, yang kemudian disimpan dalam array "nodes".
     var myLatLng = { lat: latitude_tujuan, lng: longitude_tujuan };
     nodes.push(myLatLng);
   });
@@ -265,6 +277,7 @@ function getDistance(callback) {
   // MENDAPATKAN JUMLAH TOTAL LOKASI TUJUAN
   $("#jumlah-lokasi").html(nodes.length);
 
+  // Untuk menghitung jarak antara setiap lokasi tujuan
   service.getDistanceMatrix(
     {
       origins: nodes,
@@ -273,8 +286,9 @@ function getDistance(callback) {
       avoidHighways: false,
       avoidTolls: false,
     },
+
+    //Hasil perhitungan jarak diterima oleh callback function yang disediakan oleh sistem dan disimpan dalam array "distances".
     function (distanceData) {
-      // MEMBUAT DISTANCE DATA PADA ARRAY
       var nodeDistanceData;
       for (originNodeIndex in distanceData.rows) {
         nodeDistanceData = distanceData.rows[originNodeIndex].elements;
@@ -292,6 +306,8 @@ function getDistance(callback) {
         }
       }
 
+      // Fungsi callback diterima dari method getDistanceMatrix akan dipanggil setelah informasi jarak diterima.
+      // Jika callback tidak undefined, maka function callback akan dipanggil.
       if (callback != undefined) {
         callback();
       }
@@ -299,7 +315,7 @@ function getDistance(callback) {
   );
 }
 
-// MEMBUAT FUNGSI UNTUK MENGHAPUS MARKERS DAN POLYLINES
+// Untuk membersihkan marker pada peta
 function clearMapMarkers() {
   for (index in markers) {
     markers[index].setMap(null);
@@ -317,16 +333,15 @@ function clearMapMarkers() {
   $("#ga-buttons").show();
 }
 
-// MEMBUAT FUNGSI UNTUK MENGHILANGKAN PETUNJUK ARAH PADA MAPS
+// Untuk menghilangkan petunjuk arah pada google maps
 function clearDirections() {
-  // JIKA ADA PETUNJUK ARAH PADA MAPS, MAKA AKAN DIHILANGKAN
   if (directionsDisplay != null) {
     directionsDisplay.setMap(null);
     directionsDisplay = null;
   }
 }
 
-// UNTUK MEMBERSIHKAN MAPS
+// Untuk membersihkan maps dan informasi yang ditampilkan
 function clearMap() {
   clearMapMarkers();
   clearDirections();
@@ -334,25 +349,27 @@ function clearMap() {
   $("#jumlah-lokasi").html("0");
 }
 
-// Initial Google Maps
+// Membuat objek peta baru menggunakan api google maps
 google.maps.event.addDomListener(window, "load", initializeMap);
 
-// MEMBUAT EVENT LISTENERS UNTUK MEMBERSIHKAN MAPS
+// Event listener untuk membersihkan maps
 $("#clear-map").click(clearMap);
 
-// MEMBUAT EVENT LISTENERS UNTUK MENJALANKAN PROGRAM DENGAN MENGGUNAKAN ALGORITMA GENETIKA
+// Menjalankan perhitungan sistem dengan fungsi dari algoritma genetika
 $("#cari-rute").click(function () {
   initMap();
 });
 
-// MEMBUAT FUNGSI UNTUK MENGELOLA DATA DARI PERHITUNGAN ALGORITMA GENETIKA
+// Untuk mengelola data dari perhitungan algoritma genetika
 function initMap() {
+  // Menampilkan informasi
   $("#jarak-terbaik").html("?");
   // $("#jumlah-generasi").html("?");
   $("#rangkuman-rute").html("?");
   $("#panel-petunjuk").hide();
   var nodes = [];
-  // MENDAPATKAN NILAI LAT DAN LONG DARI LOKASI ASAL
+
+  // selektor yang mengambil elemen dari DOM yang memiliki kelas "lokasi_tujuan"
   $(".lokasi_tujuan").each(function (i, obj) {
     var id = $(this).data("id");
     var lokasi_tujuan = $(this).val();
@@ -363,11 +380,12 @@ function initMap() {
       $("#lokasi_tujuan_" + id + "_longitude").val()
     );
 
+    // Mmebuat objek baru bernama "myLatLng" dengan memasukkan latitude dan longitude yang diambil. Objek "myLatLng" kemudian dimasukkan ke dalam array "nodes".
     var myLatLng = { lat: latitude_tujuan, lng: longitude_tujuan };
     nodes.push(myLatLng);
   });
 
-  // MEMUNCULKAN ALERT DIALOG JIKA LOKASI TUJUAN KURANG DARI 2 TITIK
+  // Memunculkan alert box jika input box lokasi tujuan kurang dari 2 titik
   if (nodes.length < 2) {
     if (prevNodes.length >= 2) {
       nodes = prevNodes;
@@ -377,6 +395,7 @@ function initMap() {
     }
   }
 
+  // memastikan bahwa petunjuk jalan yang tampil pada peta (map) dihapus (dihilangkan)
   if (directionsDisplay != null) {
     directionsDisplay.setMap(null);
     directionsDisplay = null;
@@ -384,11 +403,11 @@ function initMap() {
 
   $("#ga-buttons").hide();
 
-  // FUNGSI UNTUK MENDAPATKAN DATA DURASI RUTE PERJALANAN
+  // Fungsi untuk mendapatkan jarak rute perjalanan
   getDistance(function () {
     $(".info-algoritma").show();
 
-    // MENGAMBIL NILAI CONFIG ALGORITMA GENETIKA DAN MEMBUAT POPULASI ALGORITMA GENETIKA
+    // Mengambil nilai konfigurasi algoritma genetika
     ga.getConfig();
 
     // Membuat class populasi untuk algoritma genetika kemudian disimpan di variable pop
@@ -396,6 +415,7 @@ function initMap() {
 
     // Mengitialisasi populasi sesuai dengan Panjang node / titik yang diinputkan
     pop.initialize(nodes.length);
+
     // Ambil kromosom dengan nilai fittest terbaik kemudian masukkan ke variable route
     var route = pop.getFittest().chromosome;
 
@@ -420,7 +440,7 @@ function initMap() {
         routeCoordinates[route.length] = nodes[route[0]];
 
         // Tampilkan Polyline dari routeCoordinates setiap generation di peta dengan warna #0066ff
-        // Display temp. route
+        //  memeriksa apakah objek "polylinePath" sudah terdefinisi atau tidak
         if (polylinePath != undefined) {
           polylinePath.setMap(null);
         }
@@ -436,11 +456,11 @@ function initMap() {
       // Sebagai generationCallBack yang akan dipanggil saat update generation selesai.
       function (result) {
         // Simpan kromosom dengan nilai fittest paling baik di generation terakhir ke route
-        // Get route
+        // mendapatkan nilai rute
         route = result.population.getFittest().chromosome;
 
         // Meminta google maps service untuk direction
-        // Add route to map
+        // menampilkan rute antar lokasi pada peta.
         directionsService = new google.maps.DirectionsService();
         directionsDisplay = new google.maps.DirectionsRenderer();
         directionsDisplay.setMap(map);
@@ -455,9 +475,8 @@ function initMap() {
         }
 
         /* 
-        Setting request dengan origin node awal dari route awal ke destination route awal Kembali, waypoint : wapts, optimizeWaypoint : false, travelMode, sesuai dengan yang dipilih, avoidHighways : false, dan avoidTolls : false.
+        membuat objek request untuk meminta layanan rute dari Google Maps API melalui objek directionsService. Objek ini menentukan informasi yang dibutuhkan oleh API seperti titik awal (origin), titik tujuan (destination), titik-titik yang harus dilewati (waypoints), jenis perjalanan (travelMode), dan opsi untuk menghindari jalan bebas hambatan (avoidHighways) dan jalan tol (avoidTolls). Nilai-nilai ini diambil dari elemen HTML yang sesuai dengan ID-nya.
         */
-        // Add final route to map
         var request = {
           origin: nodes[route[0]],
           destination: nodes[route[0]],
@@ -468,7 +487,8 @@ function initMap() {
           avoidTolls: false,
         };
 
-        // Jika status response dari google == OK maka tampilkan response
+        // meminta Google Maps API untuk menemukan rute antara titik awal dan akhir, dengan waypoint (titik tengah) jika ada
+        // jika permintaan berhasil dilakukan dan Google Maps API mengirimkan status "OK", maka hasil rute akan ditampilkan pada peta menggunakan objek "DirectionsRenderer".
         directionsService.route(request, function (response, status) {
           if (status == google.maps.DirectionsStatus.OK) {
             directionsDisplay.setDirections(response);
@@ -487,14 +507,13 @@ function initMap() {
             var totalDist = 0;
             var myroute = response.routes[0];
 
-            // Looping sebanyak jumlah jalan rute, tambahkan semua jarak jalan rute ke totalDist. Kemudian simpan jarak jalan rute ke jarak_rute
+            // menghitung total jarak dan menampilkan ringkasan rute dari setiap titik tujuan.
             for (i = 0; i < myroute.legs.length; i++) {
               totalDist += myroute.legs[i].distance.value;
 
               var jarak_route = myroute.legs[i].distance.text;
 
               // Tampilkan urutan huruf, alamat jalan awal rute dan jarak jalan rute.
-              // UNTUK MENAMPILKAN ESTIMASI JARAK PER RUTE
               rangkuman_rute += "<p>";
               rangkuman_rute +=
                 '<strong style="color:red;">' +
@@ -507,7 +526,6 @@ function initMap() {
 
               // Jika sudah jalan rute terakhir maka tampilkan urutan huruf , alamat jalan rute dan jarak jalan rute.
               if (i + 1 == myroute.legs.length) {
-                // UNTUK MENAMPILKAN ESTIMASI JARAK PER RUTE
                 rangkuman_rute += "<p>";
                 rangkuman_rute +=
                   '<strong style="color:red;">' +
@@ -520,8 +538,7 @@ function initMap() {
               }
             }
 
-            // Tampilkan jarak (totalDist) dalam format KM dan rangkuman_rute
-            // UNTUK MENAMPILKAN TOTAL ESTIMASI JARAK
+            // Menghitung total jarak (totalDist) dalam format KM dan rangkuman_rute
             var jarak = totalDist / 1000;
             document.getElementById("jarak-terbaik").innerHTML = jarak + " KM";
             document.getElementById("rangkuman-rute").innerHTML =
@@ -574,6 +591,9 @@ var ga = {
 
   // Deklarasikan function evolvePopulation
   // Evolves given population
+  /* Kode ini adalah bagian dari implementasi Algoritma Genetika (GA). Fungsi evolvePopulation memiliki tiga parameter, yaitu population, generationCallBack, dan completeCallBack. Fungsi ini memulai proses evolusi pada populasi. Setiap evolusi mencakup proses crossover dan mutasi. Proses evolusi berlangsung secara berulang selama jumlah generasi tidak melebihi jumlah maksimal yang ditentukan oleh ga.maxGenerations.
+  
+  Pada setiap iterasi evolusi, fungsi akan memanggil generationCallBack jika ada dan memberikan informasi populasi dan generasi saat ini. Jika evolusi sudah selesai dan jumlah generasi melebihi jumlah maksimal, fungsi evolvePopulation akan memanggil completeCallBack jika ada dan memberikan informasi populasi dan generasi terakhir. */
   evolvePopulation: function (
     population,
     generationCallBack,
@@ -618,6 +638,7 @@ var ga = {
 
   // Menyimpan semua individu dari populasi
   // Population class
+  /* Kode ini adalah bagian dari GA (Genetic Algorithm), yaitu pemodelan dari sebuah populasi. Bagian ini membuat objek populasi yang terdiri dari array objek individu. Pada method initialize, populasi dibuat dengan mengulang sebanyak jumlah populasi yang ditentukan oleh properti ga.populationSize dan membuat objek individu baru yang berisi informasi kromosom dengan panjang yang ditentukan oleh chromosomeLength. Masing-masing individu baru kemudian di-push ke dalam array this.individuals. */
   population: function () {
     // Holds individuals of population
     this.individuals = [];
@@ -639,6 +660,7 @@ var ga = {
     };
 
     // Mutates current population
+    /*  bagian dari objek populasi dalam algoritma genetika. Fungsi mutate akan mengubah individu dalam populasi secara acak. Algoritma akan memperoleh indeks dari individu terbaik dalam populasi menggunakan getFittestIndex. Jika pengaturan elitism diatur sebagai benar, individu terbaik tidak akan terpengaruh oleh mutasi. Namun, jika elitism tidak diterapkan, semua individu dalam populasi akan terpengaruh oleh mutasi. */
     this.mutate = function () {
       // Cari fittestIndex kemudian simpan di fittestIndex
       var fittestIndex = this.getFittestIndex();
@@ -696,6 +718,14 @@ var ga = {
 
     // Deklarasikan function roulletteWheelSelection, initialization totalFitness : 0, dan fitness : array
     // Selects an individual with Roulette Wheel selection
+    /* Fungsi rouletteWheelSelection bertugas memilih satu individu yang memiliki fitness terbaik dari populasi saat ini menggunakan metode roulette wheel selection. Fungsi ini memiliki beberapa langkah:
+
+    - Menghitung total fitness dari semua individu dalam populasi.
+    - Menghitung probabilitas relatif setiap individu dalam populasi dengan membagi fitness setiap individu dengan total fitness.
+    - Menghitung probabilitas cumulative dari setiap individu.
+    - Melakukan random sampling sebanyak jumlah individu dalam populasi.
+    - Melakukan iterasi terhadap hasil random sampling dan membandingkannya dengan probabilitas cumulative. Individu yang memiliki probabilitas cumulative paling dekat dengan hasil random sampling akan dipilih sebagai individu dengan fitness terbaik.
+    - Hasil akhir dari fungsi ini adalah individu dengan fitness terbaik yang dipilih menggunakan roulette wheel selection.*/
     this.rouletteWheelSelection = function () {
       var totalFitness = 0;
       var fitness = [];
@@ -745,6 +775,7 @@ var ga = {
     };
 
     // Return the fittest individual's population index
+    // Membandingkan fitness masing-masing individu dan memastikan bahwa yang terpilih adalah individu dengan fitness terbesar.
     this.getFittestIndex = function () {
       // Nilai fittestIndex = 0
       var fittestIndex = 0;
@@ -773,6 +804,16 @@ var ga = {
 
   // Simpan Panjang kromosom di this.chromosomeLength, nilai fitness di this.fitness (), dan kromosom di this.chromosome.
   // Individual class
+
+  /* Kode ini adalah implementasi dari individu dalam suatu populasi dalam Algoritma Genetika (GA). Individu memiliki beberapa fitur yaitu panjang kromosom (chromosomeLength), fitness, dan kromosom (chromosome). Ada beberapa metode yang didefinisikan dalam individu, seperti:
+
+  initialize: membuat kromosom secara acak.
+  setChromosome: menetapkan kromosom untuk individu.
+  mutate: melakukan mutasi pada kromosom.
+  getDistance: menghitung jarak total dari rute yang ditentukan oleh kromosom.
+  calcFitness: menghitung nilai fitness dari individu.
+  crossover: melakukan crossover antara individu dengan individu lain, hasilnya ditambahkan ke populasi anak.
+  Fitness digunakan untuk menilai kualitas dari individu dan akan menentukan individu yang akan memasuki generasi selanjutnya. Algoritma genetika memanfaatkan mekanisme mutasi, crossover, dan seleksi untuk membuat individu yang lebih baik dari generasi ke generasi.*/
   individual: function (chromosomeLength) {
     this.chromosomeLength = chromosomeLength;
     this.fitness = null;
